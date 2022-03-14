@@ -34,13 +34,18 @@ export const getWithExpiry = async function (key: string, oldData: any) {
     const oldStorageData = JSON.parse(JSON.parse(localStorage.oldData));
     // console.log(oldData);
 
-    const oldStorage: any = [];
-    oldStorageData.forEach((country: { name: never; population: never }) => {
+    interface Country {
+      name: string;
+      population: number;
+    }
+
+    const oldStorage: Country[] = [];
+    oldStorageData.forEach((country: Country) => {
       oldStorage.push({ name: country.name, population: country.population });
     });
 
-    const newStorage: any = [];
-    newData.forEach((country: { name: never; population: never }) => {
+    const newStorage: Country[] = [];
+    newData.forEach((country: Country) => {
       newStorage.push({ name: country.name, population: country.population });
     });
 

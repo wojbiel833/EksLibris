@@ -41,7 +41,6 @@ const getWithExpiry = function (key, oldData) {
             localStorage.setItem("oldData", JSON.stringify(localStorage.TP));
             localStorage.setItem("TP", JSON.stringify(oldData));
             const oldStorageData = JSON.parse(JSON.parse(localStorage.oldData));
-            // console.log(oldData);
             const oldStorage = [];
             oldStorageData.forEach((country) => {
                 oldStorage.push({ name: country.name, population: country.population });
