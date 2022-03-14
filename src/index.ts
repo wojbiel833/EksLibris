@@ -6,29 +6,33 @@
 import { WEEK_TIMESTAMP, TODAYS_DATE, API_URL, KEY } from "../config";
 
 export const setWithExpiry = function (key: string, value: Date, ttl: number) {
+  // if (typeof key !== "string") return "Error";
+  // if (typeof value !== Date()) return "Error";
+  // if (typeof ttl !== "number") return "Error";
   const now = new Date();
 
   const dateExpiry = {
     value: value,
     expiry: now.getTime() + ttl,
   };
+
   localStorage.setItem(key, JSON.stringify(dateExpiry));
 };
 
 export const getWithExpiry = async function (key: string, oldData: any) {
-  const itemStr = localStorage.getItem(KEY);
+  const itemStr = localStorage.getItem(key);
   if (!itemStr) return;
 
   const dateExpiry = JSON.parse(itemStr);
-  // console.log(new Date().getTime(), dateExpiry.expiry);
   const now = new Date();
-  if (now.getTime() > dateExpiry.expiry) {
+  if (now.getTime() >= dateExpiry.expiry) {
     const newData = await fetchData(API_URL);
     // console.log(newData);
     localStorage.setItem("oldData", JSON.stringify(localStorage.TP));
     localStorage.setItem("TP", JSON.stringify(oldData));
 
     const oldStorageData = JSON.parse(JSON.parse(localStorage.oldData));
+    // console.log(oldData);
 
     const oldStorage: any = [];
     oldStorageData.forEach((country: { name: never; population: never }) => {
@@ -61,25 +65,34 @@ export const getWithExpiry = async function (key: string, oldData: any) {
 
 // 1)
 export const fetchData = async function (url: string) {
-  const res = await fetch(url);
-  // console.log("res", res);
-  const TP = await res.json();
-  // console.log("TP", [...TP]);
-  //   console.log(localStorage.TP, localStorage.oldData);
+  try {
+    const res = await fetch(url);
+    // console.log("res", res);
+    const TP = await res.json();
+    // console.log("TP", [...TP]);
+    // console.log(localStorage.TP, localStorage.oldData);
 
-  // 3)
-  if (!localStorage.TP) console.log("No data found...");
+    // 3)
+    if (!localStorage.TP) console.log("No data found...");
+    // 2)
+    getWithExpiry(KEY, TP);
 
-  // 2)
-  getWithExpiry(KEY, TP);
+    // 4)
+    setWithExpiry(KEY, TODAYS_DATE, WEEK_TIMESTAMP);
 
-  // 4)
-  setWithExpiry(KEY, TODAYS_DATE, WEEK_TIMESTAMP);
-  localStorage.setItem("TP", JSON.stringify(TP));
-  return TP;
+    localStorage.setItem("TP", JSON.stringify(TP));
+    // console.log(TP);
+    return TP;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
+export const add = (a: number, b: number) => a + b;
+
 fetchData(API_URL);
+
+export default "index";
 // console.log("last local", localStorage);
 
 // Kod powinien być w pełni otypowany.

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.fetchData = exports.getWithExpiry = exports.setWithExpiry = void 0;
+exports.add = exports.fetchData = exports.getWithExpiry = exports.setWithExpiry = void 0;
 // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
 // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
 // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
@@ -17,6 +17,9 @@ exports.fetchData = exports.getWithExpiry = exports.setWithExpiry = void 0;
 // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
 const config_1 = require("../config");
 const setWithExpiry = function (key, value, ttl) {
+    // if (typeof key !== "string") return "Error";
+    // if (typeof value !== Date()) return "Error";
+    // if (typeof ttl !== "number") return "Error";
     const now = new Date();
     const dateExpiry = {
         value: value,
@@ -27,18 +30,18 @@ const setWithExpiry = function (key, value, ttl) {
 exports.setWithExpiry = setWithExpiry;
 const getWithExpiry = function (key, oldData) {
     return __awaiter(this, void 0, void 0, function* () {
-        const itemStr = localStorage.getItem(config_1.KEY);
+        const itemStr = localStorage.getItem(key);
         if (!itemStr)
             return;
         const dateExpiry = JSON.parse(itemStr);
-        // console.log(new Date().getTime(), dateExpiry.expiry);
         const now = new Date();
-        if (now.getTime() > dateExpiry.expiry) {
+        if (now.getTime() >= dateExpiry.expiry) {
             const newData = yield (0, exports.fetchData)(config_1.API_URL);
             // console.log(newData);
             localStorage.setItem("oldData", JSON.stringify(localStorage.TP));
             localStorage.setItem("TP", JSON.stringify(oldData));
             const oldStorageData = JSON.parse(JSON.parse(localStorage.oldData));
+            // console.log(oldData);
             const oldStorage = [];
             oldStorageData.forEach((country) => {
                 oldStorage.push({ name: country.name, population: country.population });
@@ -67,24 +70,33 @@ exports.getWithExpiry = getWithExpiry;
 // 1)
 const fetchData = function (url) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch(url);
-        // console.log("res", res);
-        const TP = yield res.json();
-        // console.log("TP", [...TP]);
-        //   console.log(localStorage.TP, localStorage.oldData);
-        // 3)
-        if (!localStorage.TP)
-            console.log("No data found...");
-        // 2)
-        (0, exports.getWithExpiry)(config_1.KEY, TP);
-        // 4)
-        (0, exports.setWithExpiry)(config_1.KEY, config_1.TODAYS_DATE, config_1.WEEK_TIMESTAMP);
-        localStorage.setItem("TP", JSON.stringify(TP));
-        return TP;
+        try {
+            const res = yield fetch(url);
+            // console.log("res", res);
+            const TP = yield res.json();
+            // console.log("TP", [...TP]);
+            // console.log(localStorage.TP, localStorage.oldData);
+            // 3)
+            if (!localStorage.TP)
+                console.log("No data found...");
+            // 2)
+            (0, exports.getWithExpiry)(config_1.KEY, TP);
+            // 4)
+            (0, exports.setWithExpiry)(config_1.KEY, config_1.TODAYS_DATE, config_1.WEEK_TIMESTAMP);
+            localStorage.setItem("TP", JSON.stringify(TP));
+            // console.log(TP);
+            return TP;
+        }
+        catch (err) {
+            console.log(err);
+        }
     });
 };
 exports.fetchData = fetchData;
+const add = (a, b) => a + b;
+exports.add = add;
 (0, exports.fetchData)(config_1.API_URL);
+exports.default = "index";
 // console.log("last local", localStorage);
 // Kod powinien być w pełni otypowany.
 // Kod powinien posiadać pełen zestaw testów (Jest).
