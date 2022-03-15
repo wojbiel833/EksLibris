@@ -22,7 +22,7 @@ const mockCheckLocalStorage = jest.fn(() => {
     return "local storage checked";
 });
 
-describe("fetchData", () => {
+describe("mockFetchData", () => {
   let data: {};
 
   beforeEach(async () => {
@@ -34,7 +34,7 @@ describe("fetchData", () => {
   });
 });
 
-describe("setWithExpiry", () => {
+describe("mocksetWithExpiry", () => {
   it("returns right output with right aruments types", () => {
     expect(mockSetWithExpiry("string", new Date(), 1000000)).toBe(true);
 
@@ -44,7 +44,7 @@ describe("setWithExpiry", () => {
   });
 });
 
-describe("getWithExpiry", () => {
+describe("mockgetWithExpiry", () => {
   it("returns right output with right aruments types", () => {
     expect(mockGetWithExpiry(2, new Date())).toBe("Error");
     expect(mockGetWithExpiry("string", 1000000)).toBe("Error");

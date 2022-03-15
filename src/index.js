@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.add = exports.fetchData = exports.getWithExpiry = exports.setWithExpiry = void 0;
+exports.checkLocalStorage = exports.getWithExpiry = exports.setWithExpiry = void 0;
 // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
 // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
 // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
@@ -17,15 +17,14 @@ exports.add = exports.fetchData = exports.getWithExpiry = exports.setWithExpiry 
 // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
 const config_1 = require("../config");
 const setWithExpiry = function (key, value, ttl) {
-    // if (typeof key !== "string") return "Error";
-    // if (typeof value !== Date()) return "Error";
-    // if (typeof ttl !== "number") return "Error";
     const now = new Date();
     const dateExpiry = {
         value: value,
         expiry: now.getTime() + ttl,
     };
     localStorage.setItem(key, JSON.stringify(dateExpiry));
+    if (localStorage.getItem("TP"))
+        return true;
 };
 exports.setWithExpiry = setWithExpiry;
 const getWithExpiry = function (key, oldData) {
@@ -36,7 +35,7 @@ const getWithExpiry = function (key, oldData) {
         const dateExpiry = JSON.parse(itemStr);
         const now = new Date();
         if (now.getTime() >= dateExpiry.expiry) {
-            const newData = yield (0, exports.fetchData)();
+            const newData = yield fetchData();
             // console.log(newData);
             localStorage.setItem("oldData", JSON.stringify(localStorage.TP));
             localStorage.setItem("TP", JSON.stringify(oldData));
@@ -68,14 +67,22 @@ const getWithExpiry = function (key, oldData) {
 };
 exports.getWithExpiry = getWithExpiry;
 // 1)
+let TP = [];
 const fetchData = function () {
     return __awaiter(this, void 0, void 0, function* () {
+        const res = yield fetch("https://restcountries.com/v2/all");
+        // console.log("res", res);
+        TP = yield res.json();
+        // console.log("TP", [...TP]);
+        // console.log(localStorage.TP, localStorage.oldData);
+        // console.log(TP);
+        return TP;
+    });
+};
+const checkLocalStorage = function () {
+    return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield fetch("https://restcountries.com/v2/all");
-            // console.log("res", res);
-            const TP = yield res.json();
-            // console.log("TP", [...TP]);
-            // console.log(localStorage.TP, localStorage.oldData);
+            yield fetchData();
             // 3)
             if (!localStorage.TP)
                 console.log("No data found...");
@@ -84,18 +91,14 @@ const fetchData = function () {
             // 4)
             (0, exports.setWithExpiry)(config_1.KEY, config_1.TODAYS_DATE, config_1.WEEK_TIMESTAMP);
             localStorage.setItem("TP", JSON.stringify(TP));
-            console.log(TP);
-            return TP;
         }
         catch (err) {
             console.log(err);
         }
     });
 };
-exports.fetchData = fetchData;
-const add = (a, b) => a + b;
-exports.add = add;
-(0, exports.fetchData)();
+exports.checkLocalStorage = checkLocalStorage;
+(0, exports.checkLocalStorage)();
 // console.log("last local", localStorage);
 // Kod powinien być w pełni otypowany.
 // Kod powinien posiadać pełen zestaw testów (Jest).
