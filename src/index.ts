@@ -15,13 +15,10 @@ export const setWithExpiry = function (key: string, value: Date, ttl: number) {
 
   localStorage.setItem(key, JSON.stringify(dateExpiry));
 
-  if (localStorage.getItem("TP")) {
-    console.log("added");
-    return true;
-  }
+  if (localStorage.getItem("TP")) return true;
 };
 
-export const getWithExpiry = async function (key: string, oldData: any) {
+export const getWithExpiry = async function (key: string, oldData: {}) {
   const itemStr = localStorage.getItem(key);
   if (!itemStr) return;
 
