@@ -6,9 +6,6 @@
 import { WEEK_TIMESTAMP, TODAYS_DATE, API_URL, KEY } from "../config";
 
 export const setWithExpiry = function (key: string, value: Date, ttl: number) {
-  // if (typeof key !== "string") return "Error";
-  // if (typeof value !== Date()) return "Error";
-  // if (typeof ttl !== "number") return "Error";
   const now = new Date();
 
   const dateExpiry = {
@@ -17,6 +14,11 @@ export const setWithExpiry = function (key: string, value: Date, ttl: number) {
   };
 
   localStorage.setItem(key, JSON.stringify(dateExpiry));
+
+  if (localStorage.getItem("TP")) {
+    console.log("added");
+    return true;
+  }
 };
 
 export const getWithExpiry = async function (key: string, oldData: any) {
@@ -78,7 +80,7 @@ const fetchData = async function () {
   TP = await res.json();
   // console.log("TP", [...TP]);
   // console.log(localStorage.TP, localStorage.oldData);
-  console.log(TP);
+  // console.log(TP);
   return TP;
 };
 
@@ -99,8 +101,6 @@ export const checkLocalStorage = async function () {
     console.log(err);
   }
 };
-
-export const add = (a: number, b: number) => a + b;
 
 checkLocalStorage();
 
