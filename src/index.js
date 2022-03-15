@@ -36,7 +36,7 @@ const getWithExpiry = function (key, oldData) {
         const dateExpiry = JSON.parse(itemStr);
         const now = new Date();
         if (now.getTime() >= dateExpiry.expiry) {
-            const newData = yield (0, exports.fetchData)(config_1.API_URL);
+            const newData = yield (0, exports.fetchData)();
             // console.log(newData);
             localStorage.setItem("oldData", JSON.stringify(localStorage.TP));
             localStorage.setItem("TP", JSON.stringify(oldData));
@@ -61,16 +61,17 @@ const getWithExpiry = function (key, oldData) {
                         console.log(oldStorage[i].name);
                 }
             };
+            // Zmiana na filter?
             getChangedPopulation(oldStorage, newStorage);
         }
     });
 };
 exports.getWithExpiry = getWithExpiry;
 // 1)
-const fetchData = function (url) {
+const fetchData = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield fetch(url);
+            const res = yield fetch("https://restcountries.com/v2/all");
             // console.log("res", res);
             const TP = yield res.json();
             // console.log("TP", [...TP]);
@@ -83,7 +84,7 @@ const fetchData = function (url) {
             // 4)
             (0, exports.setWithExpiry)(config_1.KEY, config_1.TODAYS_DATE, config_1.WEEK_TIMESTAMP);
             localStorage.setItem("TP", JSON.stringify(TP));
-            // console.log(TP);
+            console.log(TP);
             return TP;
         }
         catch (err) {
@@ -94,8 +95,7 @@ const fetchData = function (url) {
 exports.fetchData = fetchData;
 const add = (a, b) => a + b;
 exports.add = add;
-(0, exports.fetchData)(config_1.API_URL);
-exports.default = "index";
+(0, exports.fetchData)();
 // console.log("last local", localStorage);
 // Kod powinien być w pełni otypowany.
 // Kod powinien posiadać pełen zestaw testów (Jest).

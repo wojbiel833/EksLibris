@@ -26,7 +26,7 @@ export const getWithExpiry = async function (key: string, oldData: any) {
   const dateExpiry = JSON.parse(itemStr);
   const now = new Date();
   if (now.getTime() >= dateExpiry.expiry) {
-    const newData = await fetchData(API_URL);
+    const newData = await fetchData();
     // console.log(newData);
     localStorage.setItem("oldData", JSON.stringify(localStorage.TP));
     localStorage.setItem("TP", JSON.stringify(oldData));
@@ -63,19 +63,28 @@ export const getWithExpiry = async function (key: string, oldData: any) {
           console.log(oldStorage[i].name);
       }
     };
+    // Zmiana na filter?
 
     getChangedPopulation(oldStorage, newStorage);
   }
 };
 
 // 1)
-export const fetchData = async function (url: string) {
+let TP: [] = [];
+
+const fetchData = async function () {
+  const res = await fetch("https://restcountries.com/v2/all");
+  // console.log("res", res);
+  TP = await res.json();
+  // console.log("TP", [...TP]);
+  // console.log(localStorage.TP, localStorage.oldData);
+  console.log(TP);
+  return TP;
+};
+
+export const checkLocalStorage = async function () {
   try {
-    const res = await fetch(url);
-    // console.log("res", res);
-    const TP = await res.json();
-    // console.log("TP", [...TP]);
-    // console.log(localStorage.TP, localStorage.oldData);
+    await fetchData();
 
     // 3)
     if (!localStorage.TP) console.log("No data found...");
@@ -86,8 +95,6 @@ export const fetchData = async function (url: string) {
     setWithExpiry(KEY, TODAYS_DATE, WEEK_TIMESTAMP);
 
     localStorage.setItem("TP", JSON.stringify(TP));
-    // console.log(TP);
-    return TP;
   } catch (err) {
     console.log(err);
   }
@@ -95,9 +102,8 @@ export const fetchData = async function (url: string) {
 
 export const add = (a: number, b: number) => a + b;
 
-fetchData(API_URL);
+checkLocalStorage();
 
-export default "index";
 // console.log("last local", localStorage);
 
 // Kod powinien być w pełni otypowany.
