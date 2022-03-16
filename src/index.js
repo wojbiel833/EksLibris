@@ -32,7 +32,7 @@ const getDateWithExpiry = function (key) {
         const itemString = localStorage.getItem(key);
         let dateExpiry = JSON.parse(itemString);
         // Checking if the downloadad data is fresh
-        if (dateExpiry === null) {
+        if (!dateExpiry) {
             return false;
         }
         else if (dateExpiry && now.getTime() >= dateExpiry.expiry) {
@@ -48,7 +48,9 @@ const fetchData = function () {
         try {
             const res = yield fetch(config_1.API_URL);
             TP = yield res.json();
-            localStorage.setItem("TP", JSON.stringify(TP));
+            if (!localStorage.TP) {
+                localStorage.setItem("TP", JSON.stringify(TP));
+            }
             return TP;
         }
         catch (err) {
@@ -90,14 +92,17 @@ const checkLocalStorage = function () {
                 const storageData = localStorage.getItem("TP");
                 const oldData = JSON.parse(storageData);
                 const newData = yield fetchData();
-                // console.log("newData", newData);
                 // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
-                if (newData)
+                if (newData) {
                     localStorage.setItem("TP", JSON.stringify(newData));
-                else
-                    console.log("Fetch unsuccesfull");
-                // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
-                comparePopulations(oldData, newData);
+                    // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
+                    comparePopulations(oldData, newData);
+                    return "Local storage overwritten.";
+                }
+                else {
+                    console.log("Fetch unsuccesful!");
+                    return "Fetch unsuccesful!";
+                }
             }
         }
         catch (err) {
@@ -107,6 +112,5 @@ const checkLocalStorage = function () {
 };
 exports.checkLocalStorage = checkLocalStorage;
 // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
-if (!localStorage.TP)
-    fetchData();
+fetchData();
 (0, exports.checkLocalStorage)();

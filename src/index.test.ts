@@ -1,7 +1,33 @@
-// import { checkLocalStorage, getWithExpiry, setWithExpiry } from "./index.js";
+import { checkLocalStorage, setDateWithExpiry } from "./index";
 // jest.mock("./index");
 
 // const mockFetchData = () => Promise.resolve([]);
+
+// describe("mockFetchData", () => {
+//   let data: {};
+
+//   beforeEach(async () => {
+//     data = await mockFetchData();
+//   });
+
+//   it("returns the right value", () => {
+//     expect(data).toEqual([]);
+//   });
+// });
+
+describe("checkLocalStorage", () => {
+  let a: any;
+  beforeEach(async () => {
+    a = await checkLocalStorage();
+  });
+
+  it("should return right output if data is expired", () => {
+    // const dataIsExpired = true;
+    // const dataNotExpired = true;
+
+    expect(a).toBe("Local storage overwritten.");
+  });
+});
 
 // const mockSetWithExpiry = jest.fn((key, value, ttl) => {
 //   if (typeof key !== "string") return "Error";
@@ -20,18 +46,6 @@
 //     mockGetWithExpiry("apple", {}) !== "Error"
 //   )
 //     return "local storage checked";
-// });
-
-// describe("mockFetchData", () => {
-//   let data: {};
-
-//   beforeEach(async () => {
-//     data = await mockFetchData();
-//   });
-
-//   it("returns the right value", () => {
-//     expect(data).toEqual([]);
-//   });
 // });
 
 // describe("mocksetWithExpiry", () => {
