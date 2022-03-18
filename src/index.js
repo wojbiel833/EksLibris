@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkLocalStorage = exports.fetchData = exports.populationsHaveChanged = exports.getAndCheckDateWithExpiry = exports.checkIfDataExpired = void 0;
+exports.populationsHaveChanged = exports.checkIfDataExpired = void 0;
 const config_1 = require("../config");
 const now = new Date();
 // Adding an date expiry object to localSorage under "fetchData"
@@ -41,46 +41,35 @@ exports.checkIfDataExpired = checkIfDataExpired;
 const getAndCheckDateWithExpiry = function (key) {
     const itemString = localStorage.getItem(key);
     const dateExpiry = JSON.parse(itemString);
-    const checkedData = !(0, exports.checkIfDataExpired)(dateExpiry.expiry, now);
+    const checkedData = (0, exports.checkIfDataExpired)(dateExpiry.expiry, now);
     return checkedData;
 };
-exports.getAndCheckDateWithExpiry = getAndCheckDateWithExpiry;
 // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
 const populationsHaveChanged = function (oldData, newData) {
     if (!oldData)
         oldData = [];
     if (!newData)
         newData = [];
-    const oldPopulationsData = [];
-    const newPopulationsData = [];
-    oldData.forEach((country) => {
-        oldPopulationsData.push({
-            name: country.name,
-            population: country.population,
-        });
-    });
-    newData.forEach((country) => {
-        newPopulationsData.push({
-            name: country.name,
-            population: country.population,
-        });
-    });
     // Fake population change
-    // oldPopulationsData[1].population = 20;
-    // newPopulationsData[100].population = 20000;
+    // oldData[1].population = 20;
+    // newData[100].population = 20000;
     let populationIsChanged = false;
-    for (let i = 0; i < oldPopulationsData.length; i++) {
-        if (oldPopulationsData[i].population !== newPopulationsData[i].population) {
-            console.log(oldPopulationsData[i].name);
+    for (let i = 0; i < oldData.length; i++) {
+        if (oldData[i].population !== newData[i].population) {
+            console.log(oldData[i].name);
             populationIsChanged = true;
         }
     }
     if (populationIsChanged)
         return true;
-    else
-        return false;
+    return false;
 };
 exports.populationsHaveChanged = populationsHaveChanged;
+const saveDataInLocalStorage = function (data) {
+    if (!localStorage.TP) {
+        localStorage.setItem("TP", JSON.stringify(data));
+    }
+};
 // 1)
 let TP = [];
 const fetchData = function () {
@@ -88,9 +77,7 @@ const fetchData = function () {
         try {
             const res = yield fetch(config_1.API_URL);
             TP = yield res.json();
-            if (!localStorage.TP) {
-                localStorage.setItem("TP", JSON.stringify(TP));
-            }
+            saveDataInLocalStorage(TP);
             return TP;
         }
         catch (err) {
@@ -98,21 +85,19 @@ const fetchData = function () {
         }
     });
 };
-exports.fetchData = fetchData;
 const checkLocalStorage = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Set new expiry date
             setDateWithExpiry(config_1.LOCAL_STORAGE_KEY, now, config_1.WEEK_TIMESTAMP);
             // Check if data expired
-            const dataExpired = (0, exports.getAndCheckDateWithExpiry)(config_1.LOCAL_STORAGE_KEY);
+            const dataExpired = getAndCheckDateWithExpiry(config_1.LOCAL_STORAGE_KEY);
             // If data is expired -> fetchData and overwrite
             if (dataExpired) {
                 // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
                 const storageData = localStorage.getItem("TP");
                 const oldData = JSON.parse(storageData);
-                const newData = yield (0, exports.fetchData)();
-                // console.log("newData", newData);
+                const newData = (yield dataAPI);
                 // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
                 if (newData) {
                     localStorage.setItem("TP", JSON.stringify(newData));
@@ -130,7 +115,6 @@ const checkLocalStorage = function () {
         }
     });
 };
-exports.checkLocalStorage = checkLocalStorage;
 // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
-(0, exports.fetchData)();
-(0, exports.checkLocalStorage)();
+const dataAPI = fetchData();
+checkLocalStorage();

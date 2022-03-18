@@ -3,32 +3,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const index_1 = require("./index");
 describe("populationsHaveChanged", () => {
     it("should return right output if populations have changed or not", () => {
-        const data1 = [
+        const unchangedPopulationOld = [
             {
                 name: "Spain",
                 population: 10000000,
             },
         ];
-        const data2 = [
+        const unchangedPopulationNew = [
             {
                 name: "Spain",
                 population: 10000000,
             },
         ];
-        const data3 = [
+        const changedPopulationOld = [
             {
                 name: "Ukraine",
                 population: 10000000,
             },
         ];
-        const data4 = [
+        const changedPopulationNew = [
             {
                 name: "Ukraine",
                 population: 100000,
             },
         ];
-        const unchangedPopulations = (0, index_1.populationsHaveChanged)(data1, data2);
-        const changedPopulations = (0, index_1.populationsHaveChanged)(data3, data4);
+        const unchangedPopulations = (0, index_1.populationsHaveChanged)(unchangedPopulationOld, unchangedPopulationNew);
+        const changedPopulations = (0, index_1.populationsHaveChanged)(changedPopulationOld, changedPopulationNew);
         expect(unchangedPopulations).toBe(false);
         expect(changedPopulations).toBe(true);
     });

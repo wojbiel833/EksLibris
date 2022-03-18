@@ -1,39 +1,41 @@
 import { populationsHaveChanged, checkIfDataExpired } from "./index";
-
-interface Country {
-  name: string;
-  population: number;
-}
+import { Country } from "./interfaces";
 
 describe("populationsHaveChanged", () => {
   it("should return right output if populations have changed or not", () => {
-    const data1: Country[] = [
+    const unchangedPopulationOld: Country[] = [
       {
         name: "Spain",
         population: 10000000,
       },
     ];
-    const data2: Country[] = [
+    const unchangedPopulationNew: Country[] = [
       {
         name: "Spain",
         population: 10000000,
       },
     ];
 
-    const data3: Country[] = [
+    const changedPopulationOld: Country[] = [
       {
         name: "Ukraine",
         population: 10000000,
       },
     ];
-    const data4: Country[] = [
+    const changedPopulationNew: Country[] = [
       {
         name: "Ukraine",
         population: 100000,
       },
     ];
-    const unchangedPopulations = populationsHaveChanged(data1, data2);
-    const changedPopulations = populationsHaveChanged(data3, data4);
+    const unchangedPopulations = populationsHaveChanged(
+      unchangedPopulationOld,
+      unchangedPopulationNew
+    );
+    const changedPopulations = populationsHaveChanged(
+      changedPopulationOld,
+      changedPopulationNew
+    );
 
     expect(unchangedPopulations).toBe(false);
     expect(changedPopulations).toBe(true);
