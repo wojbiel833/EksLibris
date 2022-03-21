@@ -99,7 +99,7 @@ const checkLocalStorage = async function () {
       const storageData = localStorage.getItem("TP")!;
 
       const oldData: [] = JSON.parse(storageData);
-      const newData: [] = (await dataAPI) as [];
+      const newData: [] | undefined = await dataAPI;
 
       // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
       if (newData) {
@@ -107,10 +107,9 @@ const checkLocalStorage = async function () {
 
         populationsHaveChanged(oldData, newData);
 
-        return JSON.parse(localStorage.getItem("TP")!);
+        JSON.parse(localStorage.getItem("TP")!);
       } else {
         console.log("Fetch unsuccesful!");
-        return "Fetch unsuccesful!";
       }
     }
   } catch (err) {

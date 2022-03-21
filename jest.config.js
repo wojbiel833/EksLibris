@@ -6,9 +6,5 @@ const config = {
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
-  globals: {
-    window: {},
-  },
-  testEnvironment: "jsdom",
 };
 exports.default = config;

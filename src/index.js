@@ -97,16 +97,15 @@ const checkLocalStorage = function () {
                 // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
                 const storageData = localStorage.getItem("TP");
                 const oldData = JSON.parse(storageData);
-                const newData = (yield dataAPI);
+                const newData = yield dataAPI;
                 // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
                 if (newData) {
                     localStorage.setItem("TP", JSON.stringify(newData));
                     (0, exports.populationsHaveChanged)(oldData, newData);
-                    return JSON.parse(localStorage.getItem("TP"));
+                    JSON.parse(localStorage.getItem("TP"));
                 }
                 else {
                     console.log("Fetch unsuccesful!");
-                    return "Fetch unsuccesful!";
                 }
             }
         }
