@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.populationsHaveChanged = exports.checkIfDataExpired = void 0;
 const config_1 = require("../config");
 const now = new Date();
+let TP = [];
 // Adding an date expiry object to localSorage under "fetchData"
 const setDateWithExpiry = function (key, value, ttl) {
     const dateExpiry = {
@@ -25,6 +26,13 @@ const setDateWithExpiry = function (key, value, ttl) {
     else
         console.log(`The local storage already has key "${key}" in use.`);
 };
+// 4) Przy starcie aplikacji sprawdź ile czasu minęło od poprzedniego ściągnięcia danych państw. Jeśli od ostatniego razu minęło co najmniej 7 dni, ściągnij i zapisz je ponownie.
+const getAndCheckDateWithExpiry = function (key) {
+    const itemString = localStorage.getItem(key);
+    const dateExpiry = JSON.parse(itemString);
+    const checkedData = (0, exports.checkIfDataExpired)(dateExpiry.expiry, now);
+    return checkedData;
+};
 const checkIfDataExpired = function (storageDateExpiryTimestamp, newDate) {
     const todaysTimestamp = newDate.getTime();
     if (storageDateExpiryTimestamp >= todaysTimestamp) {
@@ -37,13 +45,6 @@ const checkIfDataExpired = function (storageDateExpiryTimestamp, newDate) {
     }
 };
 exports.checkIfDataExpired = checkIfDataExpired;
-// 4) Przy starcie aplikacji sprawdź ile czasu minęło od poprzedniego ściągnięcia danych państw. Jeśli od ostatniego razu minęło co najmniej 7 dni, ściągnij i zapisz je ponownie.
-const getAndCheckDateWithExpiry = function (key) {
-    const itemString = localStorage.getItem(key);
-    const dateExpiry = JSON.parse(itemString);
-    const checkedData = (0, exports.checkIfDataExpired)(dateExpiry.expiry, now);
-    return checkedData;
-};
 // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
 const populationsHaveChanged = function (oldData, newData) {
     if (!oldData)
@@ -71,13 +72,11 @@ const saveDataInLocalStorage = function (data) {
     }
 };
 // 1)
-let TP = [];
 const fetchData = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const res = yield fetch(config_1.API_URL);
             TP = yield res.json();
-            saveDataInLocalStorage(TP);
             return TP;
         }
         catch (err) {
@@ -117,3 +116,4 @@ const checkLocalStorage = function () {
 // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
 const dataAPI = fetchData();
 checkLocalStorage();
+saveDataInLocalStorage(TP);
