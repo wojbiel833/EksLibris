@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.populationsHaveChanged = exports.checkIfDataExpired = void 0;
+exports.ifPopulationsHaveChanged = exports.checkIfDataExpired = void 0;
 const config_1 = require("../config");
 const now = new Date();
 let TP = [];
@@ -30,8 +30,7 @@ const setDateWithExpiry = function (key, value, ttl) {
 const getAndCheckDateWithExpiry = function (key) {
     const itemString = localStorage.getItem(key);
     const dateExpiry = JSON.parse(itemString);
-    const checkedData = (0, exports.checkIfDataExpired)(dateExpiry.expiry, now);
-    return checkedData;
+    return (0, exports.checkIfDataExpired)(dateExpiry.expiry, now);
 };
 const checkIfDataExpired = function (storageDateExpiryTimestamp, newDate) {
     const todaysTimestamp = newDate.getTime();
@@ -46,14 +45,14 @@ const checkIfDataExpired = function (storageDateExpiryTimestamp, newDate) {
 };
 exports.checkIfDataExpired = checkIfDataExpired;
 // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
-const populationsHaveChanged = function (oldData, newData) {
+const ifPopulationsHaveChanged = function (oldData, newData) {
     if (!oldData)
         oldData = [];
     if (!newData)
         newData = [];
     // Fake population change
-    oldData[1].population = 20;
-    newData[100].population = 20000;
+    // oldData[1].population = 20;
+    // newData[100].population = 20000;
     let populationIsChanged = false;
     for (let i = 0; i < oldData.length; i++) {
         if (oldData[i].population !== newData[i].population) {
@@ -65,13 +64,12 @@ const populationsHaveChanged = function (oldData, newData) {
         return true;
     return false;
 };
-exports.populationsHaveChanged = populationsHaveChanged;
+exports.ifPopulationsHaveChanged = ifPopulationsHaveChanged;
 const saveDataInLocalStorage = function (data) {
     if (!localStorage.TP) {
         localStorage.setItem("TP", JSON.stringify(data));
     }
 };
-// 1)
 const fetchData = function () {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -93,14 +91,12 @@ const checkLocalStorage = function () {
             const dataExpired = getAndCheckDateWithExpiry(config_1.LOCAL_STORAGE_KEY);
             // If data is expired -> fetchData and overwrite
             if (dataExpired) {
-                // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
                 const storageData = localStorage.getItem("TP");
                 const oldData = JSON.parse(storageData);
-                const newData = yield dataAPI;
-                // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
+                const newData = TP;
                 if (newData) {
                     localStorage.setItem("TP", JSON.stringify(newData));
-                    (0, exports.populationsHaveChanged)(oldData, newData);
+                    (0, exports.ifPopulationsHaveChanged)(oldData, newData);
                     JSON.parse(localStorage.getItem("TP"));
                 }
                 else {
@@ -113,7 +109,19 @@ const checkLocalStorage = function () {
         }
     });
 };
-// 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
-const dataAPI = fetchData();
-checkLocalStorage();
-saveDataInLocalStorage(TP);
+const init = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
+            TP = yield fetchData();
+            // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
+            checkLocalStorage();
+            // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
+            saveDataInLocalStorage(TP);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+};
+init();

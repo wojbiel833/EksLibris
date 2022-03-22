@@ -112,12 +112,16 @@ const checkLocalStorage = async function () {
 };
 
 const init = async function () {
-  // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
-  TP = await fetchData();
-  // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
-  checkLocalStorage();
-  // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
-  saveDataInLocalStorage(TP);
+  try {
+    // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
+    TP = await fetchData();
+    // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
+    checkLocalStorage();
+    // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
+    saveDataInLocalStorage(TP);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 init();

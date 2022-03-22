@@ -30,7 +30,7 @@ describe("populationsHaveChanged", () => {
         [unchangedPopulationOld, unchangedPopulationNew, false],
         [changedPopulationOld, changedPopulationNew, true],
     ])(".check populationsHaveChanged results", (oldPopulation, newPopulation, result) => {
-        expect((0, index_1.populationsHaveChanged)(oldPopulation, newPopulation)).toBe(result);
+        expect((0, index_1.ifPopulationsHaveChanged)(oldPopulation, newPopulation)).toBe(result);
     });
 });
 describe('"checkIfDataExpired', () => {

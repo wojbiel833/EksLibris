@@ -1,4 +1,4 @@
-import { populationsHaveChanged, checkIfDataExpired } from "./index";
+import { ifPopulationsHaveChanged, checkIfDataExpired } from "./index";
 import { Country } from "./interfaces";
 
 describe("populationsHaveChanged", () => {
@@ -34,7 +34,9 @@ describe("populationsHaveChanged", () => {
   ])(
     ".check populationsHaveChanged results",
     (oldPopulation, newPopulation, result) => {
-      expect(populationsHaveChanged(oldPopulation, newPopulation)).toBe(result);
+      expect(ifPopulationsHaveChanged(oldPopulation, newPopulation)).toBe(
+        result
+      );
     }
   );
 });
