@@ -2,7 +2,7 @@ import { WEEK_TIMESTAMP, API_URL, LOCAL_STORAGE_KEY } from "../config";
 import { Country } from "./interfaces";
 
 const now = new Date();
-let TP: [] = [];
+let TP: [] | undefined = [];
 
 // Adding an date expiry object to localSorage under "fetchData"
 const setDateWithExpiry = function (key: string, value: Date, ttl: number) {
@@ -22,8 +22,7 @@ const getAndCheckDateWithExpiry = function (key: string) {
   const itemString = localStorage.getItem(key)!;
   const dateExpiry = JSON.parse(itemString);
 
-  const checkedData = checkIfDataExpired(dateExpiry.expiry, now);
-  return checkedData;
+  return checkIfDataExpired(dateExpiry.expiry, now);
 };
 
 export const checkIfDataExpired = function (
@@ -42,7 +41,7 @@ export const checkIfDataExpired = function (
 };
 
 // 5) Stwórz metodę, która przy ponownym ściąganiu danych państw porówna populację między starym i nowym zestawem danych oraz wyświetli wszystkie nazwy państw, których populacja uległa zmianie.
-export const populationsHaveChanged = function (
+export const ifPopulationsHaveChanged = function (
   oldData: Country[],
   newData: Country[]
 ) {
@@ -65,13 +64,12 @@ export const populationsHaveChanged = function (
   return false;
 };
 
-const saveDataInLocalStorage = function (data: []) {
+const saveDataInLocalStorage = function (data: [] | undefined) {
   if (!localStorage.TP) {
     localStorage.setItem("TP", JSON.stringify(data));
   }
 };
 
-// 1)
 const fetchData = async function () {
   try {
     const res = await fetch(API_URL);
@@ -93,17 +91,15 @@ const checkLocalStorage = async function () {
 
     // If data is expired -> fetchData and overwrite
     if (dataExpired) {
-      // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
       const storageData = localStorage.getItem("TP")!;
 
       const oldData: [] = JSON.parse(storageData);
-      const newData: [] | undefined = await dataAPI;
+      const newData: [] | undefined = TP;
 
-      // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
       if (newData) {
         localStorage.setItem("TP", JSON.stringify(newData));
 
-        populationsHaveChanged(oldData, newData);
+        ifPopulationsHaveChanged(oldData, newData);
 
         JSON.parse(localStorage.getItem("TP")!);
       } else {
@@ -115,7 +111,13 @@ const checkLocalStorage = async function () {
   }
 };
 
-// 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
-const dataAPI = fetchData();
-checkLocalStorage();
-saveDataInLocalStorage(TP);
+const init = async function () {
+  // 1) Ściągnij wszystkie możliwe dane państw z pomocą API: https://restcountries.com/v2/all. W dalszej części kursu będą one nazywane Tablicą Państw (TP).
+  TP = await fetchData();
+  // 3) Przy starcie aplikacji sprawdź, czy dane państw istnieją w pamięci przeglądarki. Jeśli nie, ściągnij je,
+  checkLocalStorage();
+  // 2) Ściągnięte dane zapisz w sposób, który pozwoli na ich ponowne wykorzystanie po zamknięciu i ponownym otwarciu przeglądarki,
+  saveDataInLocalStorage(TP);
+};
+
+init();

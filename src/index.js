@@ -52,8 +52,8 @@ const populationsHaveChanged = function (oldData, newData) {
     if (!newData)
         newData = [];
     // Fake population change
-    // oldData[1].population = 20;
-    // newData[100].population = 20000;
+    oldData[1].population = 20;
+    newData[100].population = 20000;
     let populationIsChanged = false;
     for (let i = 0; i < oldData.length; i++) {
         if (oldData[i].population !== newData[i].population) {
